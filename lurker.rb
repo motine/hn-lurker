@@ -4,22 +4,15 @@ require 'thor'
 require 'open-uri'
 require 'json'
 require 'celluloid/current'
-require 'couchrest' # see http://www.rubydoc.info/github/couchrest/couchrest
-
-# For API see: https://github.com/HackerNews/API
-# TODO describe data model
+require 'couchrest'
 
 TOP_STORY_URL = 'https://hacker-news.firebaseio.com/v0/topstories.json'
 ITEM_URL_PATTERN = 'https://hacker-news.firebaseio.com/v0/item/%i.json'
 KEYS_TO_COPY_ONCE = [:by, :time, :title, :type, :url] # the keys which shall be copied over from the hn item when creating a new data base entry
 KEYS_TO_COPY_REPEAT = [:score, :descendants] # the keys which shall be copied over each time collect is run
+DOWNLOADER_POOL_SIZE = 35 # how many downloads shall be running at the same time
 
 DB = CouchRest.new.database!('lurker')
-
-# curl -sX GET http://127.0.0.1:5984/lurker | jq .
-# curl -sX DELETE http://127.0.0.1:5984/lurker
-# curl -sX DELETE http://127.0.0.1:5984/lurker/11166417?rev=1-5b265a000f46be055057f84bfd1f6e3e
-# we use the hackernews item/post id as our database _id
 
 class DetailDownloader
   include Celluloid
@@ -38,13 +31,17 @@ class DetailDownloader
   # if found, weupdate it with the new data.
   # if there is no such document yet, we create a new one with some initial data.
   # then we try again (start from loading the item from the db).
+  # caution:
+  # doing this "check", "change", "retry" is dangerous, because the underlying data may change between "check" and "change".
+  # here the assumption is that each thread (`DetailDownloader`) works on distinct data.
   def save(hn_id, hn_item, timestamp)
     doc = DB.get(hn_id.to_s)
-    # we have a pre-existing entry
+    # we have a pre-existing entry, so we update it
     moment_data = hn_item.select { |k,v| KEYS_TO_COPY_REPEAT.include?(k.to_sym) }
     doc['moments'][timestamp] = moment_data
     doc.save
-  rescue RestClient::ResourceNotFound => e # we haven't created a document for this id yet
+  rescue RestClient::ResourceNotFound => e
+    # we haven't created a document for this id yet, so let's do it
     new_db_item = hn_item.select { |k,v| KEYS_TO_COPY_ONCE.include?(k.to_sym) } # copy keys for new item
     new_db_item['_id'] = hn_id.to_s
     new_db_item['moments'] = {}
@@ -65,14 +62,13 @@ class Lurker < Thor
     top_story_body = nil
     open(TOP_STORY_URL) do |file|
       top_story_body = file.read
-    end # let's not worrie about errors yet
+    end # let's not worry about errors yet
     top_story_item_ids = JSON.parse(top_story_body)
 
     timestamp = Time.new.to_i # have one timestamp for new entries
-    downloader_pool = DetailDownloader.pool(size: 20)
-    futures = [] # spawn the the downloaders
-    top_story_item_ids.each_with_index do |item_id, i|
-      futures << downloader_pool.future.download_and_save(i, item_id, timestamp)
+    downloader_pool = DetailDownloader.pool(size: DOWNLOADER_POOL_SIZE)
+    futures = top_story_item_ids.collect.with_index do |item_id, i| # spawn the the downloaders
+      downloader_pool.future.download_and_save(i, item_id, timestamp)
     end
     
     futures.each(&:value) # wait for completion of all downloaders
