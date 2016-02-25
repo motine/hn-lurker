@@ -1,0 +1,12 @@
+# install me to /etc/systemd/system/
+# then run: systemctl daemon-reload
+# and activate with: systemctl enable lurker.timer
+[Unit]
+Description=Run lurker collect every day
+
+[Timer]
+OnBootSec=60sec
+OnUnitActiveSec=6h
+
+[Install]
+WantedBy=timers.target

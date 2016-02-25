@@ -1,0 +1,12 @@
+# adjust the path below, then
+# install me to /etc/systemd/system/
+# then run: systemctl daemon-reload
+[Unit]
+Description=Run lurker collect once
+
+[Service]
+ExecStart=/vagrant/lurker.rb collect
+Type=oneshot
+
+[Install]
+WantedBy=multi-user.target
