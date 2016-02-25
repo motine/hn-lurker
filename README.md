@@ -2,11 +2,11 @@
 
 This project is mainly for myself, because I wanted to try out a few things together ([thor](http://whatisthor.com/), [couchDB](http://couchdb.apache.org/) and [celluloid](https://github.com/celluloid/celluloid/)).
 
-# Idea
+## Idea
 
 <!-- # For API see: https://github.com/HackerNews/API -->
 
-# Get started
+## Get started
 
 ```bash
 vagrant up # I have vbguest installed
@@ -16,7 +16,7 @@ cd /vagrant
 ./lurker.rb help
 ```
 
-# Development
+## Development
 
 <!-- TODO notes about celloid -->
 <!-- Threading is a good idea here. With a pool size of 35 the collection takes about 10 seconds. With no threading (sequential execution of each request), we take around 5 minutes. -->
@@ -31,7 +31,7 @@ curl -sX DELETE http://127.0.0.1:5984/lurker # remove/reset everything
 curl -sX DELETE http://127.0.0.1:5984/lurker/11166417?rev=1-5b265a000f46be055057f84bfd1f6e3e # remove an individual item
 ```
 
-## Data model
+### Data model
 
 The data for 
 
