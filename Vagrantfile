@@ -3,7 +3,8 @@
 NAME = File.basename(File.dirname(__FILE__)).gsub(/[^\w]/, '')
 
 DEPS = <<SCRIPT
-apt-get -y install vim
+apt-get -y install vim jq
+apt-get -y install couchdb
 apt-get -y install bundler
 SCRIPT
 
