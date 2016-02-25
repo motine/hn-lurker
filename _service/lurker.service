@@ -7,6 +7,8 @@ Description=Run lurker collect once
 [Service]
 ExecStart=/vagrant/lurker.rb collect
 Type=oneshot
+RemainAfterExit=yes
+#User=fedora
 
 [Install]
 WantedBy=multi-user.target
