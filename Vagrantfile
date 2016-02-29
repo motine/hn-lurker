@@ -31,6 +31,7 @@ Vagrant.configure("2") do |config|
   config.vm.provision :shell, inline: BUNDLES, keep_color: true, privileged: false
 
   config.vm.network "forwarded_port", guest: 5984, host: 5984
+  config.vm.network "forwarded_port", guest: 8080, host: 8080
 
   config.vm.provider "virtualbox" do |vb|
     vb.name = NAME

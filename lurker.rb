@@ -5,6 +5,7 @@ require 'open-uri'
 require 'json'
 require 'celluloid/current'
 require 'couchrest'
+require 'webrick'
 
 TOP_STORY_URL = 'https://hacker-news.firebaseio.com/v0/topstories.json'
 ITEM_URL_PATTERN = 'https://hacker-news.firebaseio.com/v0/item/%i.json'
@@ -72,6 +73,13 @@ class Lurker < Thor
     end
     
     futures.each(&:value) # wait for completion of all downloaders
+  end
+  
+  desc "server", "start a webserver at 8080"
+  def server
+    server = WEBrick::HTTPServer.new(:Port => 8080, :DocumentRoot => File.expand_path('../www', __FILE__))
+    trap('INT') { server.shutdown }
+    server.start
   end
 end
 

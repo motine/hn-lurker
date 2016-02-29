@@ -14,6 +14,11 @@ vagrant ssh
 
 cd /vagrant
 ./lurker.rb help
+
+
+./lurker.rb collect # after having accumulated some data with
+./lurker.rb server # we can run the server and open
+# http://localhost:8080 to see some graphs
 ```
 
 ## Development
