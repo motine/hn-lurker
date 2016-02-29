@@ -1,0 +1,11 @@
+{
+  "_id": "_design/analysis",
+  "_rev": "5-664a7d014cd7742b021fd6281ab89c92",
+  "language": "javascript",
+  "views": {
+    "wday_hour_max": {
+      "map": "var DAYS = [\"Sun\", \"Mon\", \"Tue\", \"Wed\", \"Thu\", \"Fri\", \"Sat\"];\nfunction(doc) {\n  var maxScore = -1;\n  for (m in doc.moments) {\n    var score = doc.moments[m].score;\n    if (maxScore < score) { // avoid using Math.max here, so we can add code later\n      maxScore = score\n    }\n  }\n  var submission = new Date(0); // The 0 there is the key, which sets the date to the epoch\n  submission.setUTCSeconds(doc.time);\n  var day = submission.getUTCDay();\n  emit([day, submission.getUTCHours()], maxScore);\n}",
+      "reduce": "function(keys, values) {\n  return Math.round(sum(values)/values.length);;\n}"
+    }
+  }
+}
