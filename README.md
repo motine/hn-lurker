@@ -61,3 +61,8 @@ The data for
   }
 }
 ```
+
+### Im/export database
+
+We are using [python-couchdb](https://github.com/Roger/couchdb-python).
+

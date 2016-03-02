@@ -16,6 +16,8 @@ echo                          >> /etc/couchdb/local.ini
 echo '[cors]'                 >> /etc/couchdb/local.ini
 echo 'origins = *'            >> /etc/couchdb/local.ini
 systemctl restart couchdb
+
+dnf install python-couchdb # for import and export
 SCRIPT
 
 BUNDLES = <<SCRIPT
