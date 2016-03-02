@@ -66,3 +66,13 @@ The data for
 
 We are using [python-couchdb](https://github.com/Roger/couchdb-python).
 
+```bash
+# == export
+couchdb-dump http://127.0.0.1:5984/lurker > data.json
+gzip data.json # optionally compress
+
+# == import
+# curl -X DELETE http://127.0.0.1:5984/lurker # remove old data before
+curl -X PUT http://127.0.0.1:5984/lurker # create db before
+couchdb-load --input=data.json http://127.0.0.1:5984/lurker
+```
